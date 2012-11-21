@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dataset>
+  <config id="1" key="assertPercentage" value="0.25"/>
+  <config id="2" key="zMin" value="-1"/>  
+  <config id="3" key="registrationCode" value="123" />   
+  <gametext_metadata />
+  <gametext_tag />  
+  <textpackage_draft />
+  <textpackage_gameresult />
+  <textpackage_gametext />     
+  <draftinfo />
+  <clientevent />    
+  <gameresult />
+  <idealunderline_draft />
+  <idealunderline_selections />  
+  <idealunderline />
+  <avatar />
+  <draft />
+  <gametext />  
+  <textpackage />
+  <readeruser />
+  <tag />   
+</dataset>

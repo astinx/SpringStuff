@@ -1,0 +1,49 @@
+package ar.com.aleatoria.utils;
+
+import java.io.FileInputStream;
+import java.util.Properties;
+
+import org.dbunit.DBTestCase;
+import org.dbunit.PropertiesBasedJdbcDatabaseTester;
+import org.dbunit.database.IDatabaseConnection;
+import org.dbunit.operation.DatabaseOperation;
+
+import tools.DBUtils;
+import utils.exceptions.LoadConfigurationFailException;
+import utils.exceptions.LoadFixtureFileFailException;
+
+abstract public class UnderlineDBUnit extends DBTestCase {
+
+    public UnderlineDBUnit(String name)
+    {
+    	try {
+			// Read properties file.
+			Properties properties = new Properties();
+			properties.load(new FileInputStream(System.getProperty("user.dir") + "/WebContent/WEB-INF/env/jdbc.properties"));
+
+			System.setProperty( PropertiesBasedJdbcDatabaseTester.DBUNIT_DRIVER_CLASS, properties.getProperty("jdbc.driver") );
+			System.setProperty( PropertiesBasedJdbcDatabaseTester.DBUNIT_CONNECTION_URL, properties.getProperty("jdbc.url"));
+			System.setProperty( PropertiesBasedJdbcDatabaseTester.DBUNIT_USERNAME, properties.getProperty("jdbc.user") );
+			System.setProperty( PropertiesBasedJdbcDatabaseTester.DBUNIT_PASSWORD, properties.getProperty("jdbc.password") );
+			System.setProperty( PropertiesBasedJdbcDatabaseTester.DBUNIT_SCHEMA, properties.getProperty("hibernate.default_schema") );
+		} catch (Exception e) {
+			System.out.println("No existe el archivo de properties");
+		}
+    }
+	
+    protected void setUp() throws Exception
+    {
+    	try{
+			DatabaseOperation.CLEAN_INSERT.execute(this.getDBConnection(), this.getDataSet());
+    	}catch (LoadConfigurationFailException e) {
+    		System.out.println("No se pudo cargar la configuración");
+		}catch (LoadFixtureFileFailException e) {
+    		System.out.println("No se pudo cargar el archivo de fixtures");
+		}
+		super.setUp();
+    }
+
+	private IDatabaseConnection getDBConnection() throws LoadConfigurationFailException {
+		return DBUtils.getDBConnection();
+	}
+}

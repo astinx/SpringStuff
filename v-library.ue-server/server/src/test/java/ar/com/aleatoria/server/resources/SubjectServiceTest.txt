@@ -1,0 +1,62 @@
+
+package ar.com.aleatoria.server.resources;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.IOException;
+
+import org.apache.http.HttpException;
+import org.apache.http.client.HttpClient;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.http.HttpMethod;
+
+import ar.com.aleatoria.server.model.Subject;
+
+import com.google.gson.Gson;
+
+public class SubjectServiceTest {
+    @Before
+    public void setUp() throws HttpException, IOException {
+        // We are gonna to persist some Subjects
+        HttpClient httpclient = new HttpClient();
+        HttpMethod method = new GetMethod("http://localhost:8080/service/foo/populate/");
+        method.addRequestHeader("accept", "application/json");
+        httpclient.executeMethod(method);
+    }
+
+    @Test
+    public void testGetAllSubjects() {
+        fail("Not yet implemented");
+    }
+
+    @Test
+    public void testAddSubject() {
+        fail("Not yet implemented");
+    }
+
+    @Test
+    public void testGetSubjectById() throws HttpException, IOException {
+        HttpClient httpclient = new HttpClient();
+        HttpMethod method = new GetMethod("http://localhost:8080/service/subject/1");
+        method.addRequestHeader("accept", "application/json");
+        httpclient.executeMethod(method);
+
+        String resultado = method.getResponseBodyAsString();
+        Gson gson = new Gson();
+        Subject subject1 = gson.fromJson(resultado, Subject.class);
+        assertTrue("No coinciden los id!", subject1.getId() == 1);
+    }
+
+    @Test
+    public void testUpdateSubject() {
+        fail("Not yet implemented");
+    }
+
+    @Test
+    public void testDeleteSubjectById() {
+        fail("Not yet implemented");
+    }
+
+}

@@ -1,0 +1,6 @@
+jdbc.driver=org.postgresql.Driver
+jdbc.url=jdbc:postgresql://localhost:5432/vlib_unit_testing
+jdbc.user=postgres
+jdbc.password=postgres
+hibernate.hbm2ddl.auto=update
+hibernate.default_schema=vlib

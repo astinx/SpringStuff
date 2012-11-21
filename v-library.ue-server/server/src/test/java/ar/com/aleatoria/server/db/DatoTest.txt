@@ -1,0 +1,48 @@
+package ar.com.aleatoria.server.db;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.sql.SQLException;
+import java.util.List;
+
+import org.dbunit.DatabaseUnitException;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import ar.com.aleatoria.server.underline.async.model.Draft;
+import ar.com.aleatoria.server.underline.model.GameText;
+import ar.com.aleatoria.utils.FixtureExecution;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:applicationContext-test.xml" })
+public class DaoTest {
+	@Autowired
+	private DAO dao;
+	@Autowired
+	private FixtureExecution fixtures;
+
+	@Before
+	public void populateDatabase() throws DatabaseUnitException, SQLException,
+			Exception {
+		dao.deleteContentFromAllTables();
+		fixtures.doCleanInsert("test.xml");
+	}
+
+	@Test
+	public void testGetAllTexts() {
+		List<GameText> texts = dao.getAllTexts();
+		assertEquals(texts.size(), 36);
+	}
+	
+	@Test
+	public void testGetDraftById() {
+		Draft draft = dao.getDraftById(19);
+		assertNotNull(draft);
+		assertEquals(draft.getOwner().getId(), 4);
+	}
+}

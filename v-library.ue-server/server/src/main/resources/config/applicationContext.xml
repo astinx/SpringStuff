@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="
+           http://www.springframework.org/schema/beans  
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/tx 
+           http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
+           http://www.springframework.org/schema/aop
+           http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-3.1.xsd
+           http://www.springframework.org/schema/security
+           http://www.springframework.org/schema/security/spring-security-3.0.3.xsd">
+	<context:component-scan 
+	   base-package="ar.com.aleatoria.util,
+	                 ar.com.aleatoria.server.db,
+                     ar.com.aleatoria.server.resources,
+                     ar.com.aleatoria.server.auth" />
+    
+    <!-- Spring security configuration -->
+    <security:http auto-config="true"> 
+        <security:intercept-url pattern="/user/*" method="POST" access="" filters="none" />
+        <security:intercept-url pattern="/user/*" method="GET" access="ROLE_USER" />
+        <security:intercept-url pattern="/user/*" method="DELETE" access="ROLE_USER" />
+        <security:intercept-url pattern="/subject/*" method="POST" access="ROLE_USER" />
+        <security:intercept-url pattern="/subject/*" method="PUT" access="ROLE_USER" />
+        <security:intercept-url pattern="/subject/*" method="DELETE" access="ROLE_USER" />
+        <security:intercept-url pattern="/career/*" method="POST" access="ROLE_USER" />
+        <security:intercept-url pattern="/career/*" method="PUT" access="ROLE_USER" />
+        <security:intercept-url pattern="/career/*" method="DELETE" access="ROLE_USER" />
+        <security:intercept-url pattern="/instant/*" access="ROLE_USER" />
+        <!-- Everybody can access to this URL -->
+        <security:intercept-url pattern="/user/browser/*" method="GET" access="" filters="none" />
+        <security:http-basic />
+        <security:custom-filter ref="digestFilter" after="BASIC_AUTH_FILTER" />
+    </security:http>
+    
+	<bean id="digestFilter" class="org.springframework.security.web.authentication.www.DigestAuthenticationFilter">
+	   <property name="userDetailsService" ref="UEAuthHardCoded" />
+	   <property name="authenticationEntryPoint" ref="digestEntryPoint" />
+	</bean>
+    
+	<bean id="digestEntryPoint" class="org.springframework.security.web.authentication.www.DigestAuthenticationEntryPoint">
+   		<property name="realmName" value="Contacts Realm via Digest Authentication"/>
+   		<property name="key" value="acegi" />
+	</bean>
+	
+    <bean id="ueAuth" name="UEAuth" class="ar.com.aleatoria.server.auth.UEAuthenticationProvider"></bean>
+    
+    <security:user-service id="UEAuthHardCoded">
+        <security:user name="bob" password="bob" authorities="NOEXIST_ROLE" />
+        <security:user name="billy" password="billy" authorities="ROLE_USER" />
+    </security:user-service>
+    
+    <security:authentication-manager>
+        <security:authentication-provider ref="UEAuth" >
+<!--         <security:authentication-provider user-service-ref="UEAuthHardCoded" > -->
+        </security:authentication-provider>
+    </security:authentication-manager>
+    <!-- End of spring security configuration -->
+    
+    <!-- HttpMessageConverters specification -->
+    <bean class="utils.messages.GsonHttpMessageConverter" id="gsonHttpMessageConverter" name="gsonHttpMessageConverter" />
+    
+    <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+        <property name="messageConverters">
+            <list>
+                <ref bean="gsonHttpMessageConverter"/>
+            </list>
+        </property>
+    </bean>
+    
+    <!-- End of the HttpMessageConverters beans -->
+    
+    <!-- Hibernate and Log4j beans -->
+    
+    <tx:annotation-driven transaction-manager="txManager"/>
+  	
+    <bean id="txManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="packagesToScan">
+		  <list>
+		      <value>ar.com.aleatoria.server.**.model</value>
+		  </list>
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</prop>
+				<prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop>
+				<prop key="hibernate.default_schema">${hibernate.default_schema}</prop>
+				<prop key="show_sql">true</prop>
+				<prop key="format_sql">true</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+				<list>
+      				<value>classpath:env/jdbc.properties</value>
+      				<value>classpath:env/mailer.properties</value>
+      				<value>classpath:env/server.properties</value>
+      			</list>
+			
+		</property>
+	</bean>
+
+	<bean id="dataSource" destroy-method="close"
+		class="org.apache.tomcat.dbcp.dbcp.BasicDataSource">
+		<property name="driverClassName" value="${jdbc.driver}" />
+		<property name="url" value="${jdbc.url}" />
+		<property name="username" value="${jdbc.user}" />
+		<property name="password" value="${jdbc.password}" />
+	</bean>
+    
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="host" value="${mailer.host}" />
+		<property name="port" value="${mailer.port}" />
+		<property name="username" value="${mailer.username}" />
+		<property name="password" value="${mailer.password}" />
+
+		<property name="javaMailProperties">
+			<props>
+				<prop key="mail.smtp.auth">true</prop>
+				<prop key="mail.smtp.starttls.enable">true</prop>
+			</props>
+		</property>
+	</bean>
+    
+<!-- 	<bean id="contextMailSender" class="tools.ContextMailSender"> -->
+<!-- 		<property name="serverUrl" value="${server.url}"/> -->
+<!-- 		<property name="contestMailTemplate" value="/mails/contest.template" /> -->
+<!-- 		<property name="serverEnv" value="${server.env}"/> -->
+<!-- 	</bean> -->
+	
+    <!-- WebMVC beans -->
+    
+    <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter" >
+    </bean>
+    
+</beans>

@@ -1,0 +1,102 @@
+package ar.com.aleatoria.utils;
+
+import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Properties;
+
+import org.dbunit.DatabaseUnitException;
+import org.dbunit.database.DatabaseConnection;
+import org.dbunit.database.IDatabaseConnection;
+import org.dbunit.dataset.IDataSet;
+import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
+import org.dbunit.operation.DatabaseOperation;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.orm.hibernate3.SessionFactoryUtils;
+import org.springframework.stereotype.Component;
+
+import tools.DBUtils;
+
+/**
+ * Helper class to avoid dealing with DBUnit and fixture execution during test
+ * development.
+ */
+@Component
+public class FixtureExecution {
+	@Autowired
+	private ApplicationContext context;
+	@Autowired
+	private Properties jdbcConfiguration;
+
+	/**
+	 * Execute the <b>CLEAN_INSERT</b> operation on the database, setting up a
+	 * connection as configured in Spring's <b>SessionFactory</b> bean.
+	 * 
+	 * @param resource
+	 *            the path to the fixture xml file, relative to
+	 *            classpath:fixtures/
+	 * @throws DatabaseUnitException
+	 * @throws SQLException
+	 * @throws Exception
+	 */
+	public void doCleanInsert(String resource) throws DatabaseUnitException,
+			SQLException, Exception {
+		IDatabaseConnection connection = getConnection();
+		IDataSet ds = getDataSet(classpathResource(resource), connection);
+
+		DatabaseOperation.CLEAN_INSERT.execute(connection, ds);
+		DBUtils.updateCurrentSequences(connection, ds);
+	}
+
+	/**
+	 * Obtain a full path for a resource in classpath:fixtures/
+	 * 
+	 * @param resource
+	 *            the name of the resource
+	 * @return the path for the resource relative to the classpath
+	 */
+	public String classpathResource(String resource) {
+		return "classpath:fixtures/" + resource;
+	}
+
+	/**
+	 * Get an xml dataset for a DBUnit operation.
+	 * 
+	 * @param resource
+	 *            path to the xml file to be treated as a dataset
+	 * @return a <b>FlatXmlDataSet</b>
+	 * @throws Exception
+	 */
+	private IDataSet getDataSet(String resource, IDatabaseConnection connection)
+			throws Exception {
+		InputStream inputStream = context.getResource(resource)
+				.getInputStream();
+		FlatXmlDataSetBuilder builder = new FlatXmlDataSetBuilder();
+		IDataSet xmlDataset = builder.build(inputStream);
+
+		return xmlDataset;
+	}
+
+	/**
+	 * Set up a connection to the database using the JDBC connection specified
+	 * for Spring's <b>SessionFactory</b> bean. The <b>default schema</b> is
+	 * read from the jdbcConfiguration bean.
+	 * 
+	 * @return a database connection
+	 * @throws Exception
+	 */
+	private IDatabaseConnection getConnection() throws Exception {
+		SessionFactory sessionFactory = (SessionFactory) context
+				.getBean("sessionFactory");
+		Connection jdbcConnection = SessionFactoryUtils.getDataSource(
+				sessionFactory).getConnection();
+
+		String schema = jdbcConfiguration
+				.getProperty("hibernate.default_schema");
+		jdbcConnection.createStatement().execute(
+				"set search_path to '" + schema + "'");
+		return new DatabaseConnection(jdbcConnection);
+	}
+}

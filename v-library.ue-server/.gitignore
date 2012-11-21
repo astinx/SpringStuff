@@ -1,0 +1,16 @@
+*.class
+server/target/*
+server/.project
+server/.classpath
+*.pydevproject
+server/.metadata
+server/bin/**
+server/tmp/**
+tmp/**/*
+*.tmp
+*.bak
+*.swp
+*~.nib
+server/local.properties
+server/.settings/
+server/.loadpath
