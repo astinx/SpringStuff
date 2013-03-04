@@ -1,0 +1,8 @@
+bin/
+target/
+WebContent/
+.settings
+.classpath
+.project
+config.js
+*.properties
