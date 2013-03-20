@@ -1,0 +1,71 @@
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans 
+    				http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                    http://www.springframework.org/schema/security 
+                    http://www.springframework.org/schema/security/spring-security-3.1.xsd
+                    http://www.springframework.org/schema/mvc 
+                    http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd">
+		
+		<mvc:annotation-driven />	    
+		<!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources directory -->
+		<mvc:resources mapping="/resources/**" location="/resources/" />
+		
+		<global-method-security pre-post-annotations="enabled"/>
+
+	 	<http auto-config="true" use-expressions="true" access-denied-page="/auth/denied">
+	 	  <intercept-url pattern="/auth/login" access="permitAll"/>
+	 	  <intercept-url pattern="/resources/template/css/login.css" access="permitAll"/>
+	 	  <intercept-url pattern="/resources/template/img/patterns/bg_c.png" access="permitAll"/>
+	 	  <intercept-url pattern="/resources/img/startup/**" access="permitAll"/>
+	 	  
+	 	  <intercept-url pattern="/resources/template/js/jquery.min.js" access="permitAll"/>
+	 	  <intercept-url pattern="/resources/template/js/lib/jquery-validation/jquery.validate.js" access="permitAll"/>
+	 	  <intercept-url pattern="/resetEmail" access="permitAll" />
+	 	  
+		<!-- Ver http://static.springsource.org/spring-security/site/docs/3.0.x/reference/springsecurity-single.html#nsa-method-security -->
+	 	  <intercept-url pattern="/rest/users/" method="DELETE" access="ROLE_ADMIN" />
+	 	  <!-- Update perfil de usuario desde usuarioList -->
+	 	  <intercept-url pattern="/rest/users/" method="PUT" access="ROLE_ADMIN" />
+	 	  
+	 	  <intercept-url pattern="/error_404" access="permitAll" />
+	 	  
+<!-- 		<intercept-url pattern="/**" access="hasAnyRole('ROLE_USER', 'ROLE_BACKOFFICE', 'ROLE_ADMIN')" /> -->
+			
+		<intercept-url pattern="/administration/**" access="hasAnyRole('ROLE_USER', 'ROLE_ADMIN')" />
+		<intercept-url pattern="/administration/userPasswordUpdate" access="hasAnyRole('ROLE_USER')" />
+		<intercept-url pattern="/certificate/**" access="hasAnyRole('ROLE_USER', 'ROLE_ADMIN')" />
+		<intercept-url pattern="/report/**" access="hasAnyRole('ROLE_USER', 'ROLE_ADMIN')" />
+		<intercept-url pattern="/tramite/**" access="hasAnyRole('ROLE_USER', 'ROLE_ADMIN')" />
+		<intercept-url pattern="/expiredPayment/**" access="hasAnyRole('ROLE_EXPIRED')" />
+	 	<intercept-url pattern="/backOffice/**" access="hasAnyRole('ROLE_BACKOFFICE', 'ROLE_ADMIN')" />
+		 
+	  	<form-login
+		    login-page="/auth/login"
+		    authentication-failure-url="/auth/login?error=true"
+		    authentication-success-handler-ref="cash" 
+		    default-target-url="/"/>
+	  	<logout
+		    invalidate-session="true"
+		    logout-success-url="/auth/login"
+		    logout-url="/auth/logout"/>
+		</http>
+		
+		<!-- 
+			<authentication-failure-handler-ref user-service-ref="cafh">
+		<beans:bean id="cafh" class="com.dimens.doxautomotor.servicios.CustomAuthenticationFailureHandler"/>
+		 -->
+		
+		<beans:bean id="cash" class="com.dimens.doxautomotor.servicios.CustomAuthenticationSuccessHandler"/>
+		
+		<authentication-manager>
+		  <authentication-provider user-service-ref="customAuthenticationProvider">
+		  	<password-encoder ref="passwordEncoder"/>
+		  </authentication-provider>
+		</authentication-manager>
+		
+		<beans:bean id="customAuthenticationProvider" class="com.dimens.doxautomotor.servicios.CustomUserDetailsService"/>
+		<beans:bean class="org.springframework.security.authentication.encoding.Md5PasswordEncoder" id="passwordEncoder"/>
+</beans:beans>
