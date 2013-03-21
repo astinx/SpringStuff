@@ -31,7 +31,6 @@
     
     
     <!-- Hibernate and Log4j beans -->
-    
     <tx:annotation-driven transaction-manager="txManager"/>
   	
     <bean id="txManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">

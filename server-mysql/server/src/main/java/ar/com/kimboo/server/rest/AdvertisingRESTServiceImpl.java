@@ -1,10 +1,11 @@
 
 package ar.com.kimboo.server.rest;
 
-import java.io.File;
+import java.io.InputStream;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -18,6 +19,9 @@ import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,6 +29,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import ar.com.kimboo.model.Advertising;
 import ar.com.kimboo.server.services.AdvertisingServiceImpl;
+
+import com.sun.jersey.core.header.FormDataContentDisposition;
+import com.sun.jersey.multipart.FormDataParam;
 
 @Component
 @Path("/advertising")
@@ -81,16 +88,26 @@ public class AdvertisingRESTServiceImpl {
      * @return Response to the client.
      * @uri http://localhost:8080/server/rest/advertising/
      */
-	@POST @Path("/add/") @Consumes(MediaType.MULTIPART_FORM_DATA) 
+	@POST @Path("/add") @Consumes(MediaType.MULTIPART_FORM_DATA) 
     public Response formHandler(
-    		@FormDataParam("someparameter") String param,
-            @FormDataParam("inputfile") File inputfilee) {
+    		@FormDataParam("description") String description,
+    		@FormDataParam("deviceId") String deviceId,
+    		@FormDataParam("appId") String appId,
+    		@FormDataParam("advertisingTag") String advertisingTag,
+            @FormDataParam("imageFile") InputStream imageFileStream,
+            @FormDataParam("imageFile") FormDataContentDisposition fileDetail) {
 		try {
 			Advertising advertising = new Advertising();
-			//advertising.setDescription(dispostion.getParameters().get("description"));
-			//advertising.setDevice(dispostion.getParameters().get("deviceId"));
-			//advertising.setApplication(dispostion.getParameters().get("appId"));
-			advertising.setModification(Calendar.getInstance().getTime());
+			advertising.setDescription(description);
+			advertising.setAppId(appId);
+			advertising.setTag(advertisingTag);
+			advertising.setLastModification(Calendar.getInstance().getTime());
+			advertising.setDevice(deviceId);
+			String extension = (fileDetail.getFileName().split("\\."))[1];
+			String fileOutputLocation = "/home/astinx/dev/" + advertising.getAppId() + "_" + advertising.getDevice() + "_" + advertising.getTag() + "." + extension;
+			advertising.setPath(fileOutputLocation);
+			advertisingService.writeToFile(imageFileStream, fileOutputLocation);
+			advertisingService.saveAdvertising(advertising);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
