@@ -1,9 +1,12 @@
 
 package ar.com.kimboo.server.rest;
 
+import java.io.File;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -16,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -33,8 +37,26 @@ public class AdvertisingRESTServiceImpl {
      * @return json.
      * @uri http://localhost:8080/server/rest/advertising/
      */
-	@GET @Path("/") @Produces(MediaType.APPLICATION_JSON)
-    public @ResponseBody List<Advertising> getAllAdvertisings() {
+	@GET @Path("/{idApp}") @Produces(MediaType.APPLICATION_JSON)
+    public @ResponseBody List<Advertising> getAllAdvertisings(@PathVariable("idApp") String idApp) {
+        return advertisingService.getAll();
+    }
+	
+	/**
+     * @return json.
+     * @uri http://localhost:8080/server/rest/android/advertising/
+     */
+	@GET @Path("/android/{idApp}") @Produces(MediaType.APPLICATION_JSON)
+    public @ResponseBody List<Advertising> getAdvertisingForAndroid(@PathVariable("idApp") String idApp) {
+        return advertisingService.getAll();
+    }
+	
+	/**
+     * @return json.
+     * @uri http://localhost:8080/server/rest/ios/advertising/
+     */
+	@GET @Path("/ios/{idApp}") @Produces(MediaType.APPLICATION_JSON)
+    public @ResponseBody List<Advertising> getAdvertisingForIos(@PathVariable("idApp") String idApp) {
         return advertisingService.getAll();
     }
 	
@@ -54,6 +76,28 @@ public class AdvertisingRESTServiceImpl {
 		return Response.status(Response.Status.OK).entity("Advertising has been persisted").build();
     }
 
+    /**
+     * @param newAdvertising: The new Advertising to add to the database.
+     * @return Response to the client.
+     * @uri http://localhost:8080/server/rest/advertising/
+     */
+	@POST @Path("/add/") @Consumes(MediaType.MULTIPART_FORM_DATA) 
+    public Response formHandler(
+    		@FormDataParam("someparameter") String param,
+            @FormDataParam("inputfile") File inputfilee) {
+		try {
+			Advertising advertising = new Advertising();
+			//advertising.setDescription(dispostion.getParameters().get("description"));
+			//advertising.setDevice(dispostion.getParameters().get("deviceId"));
+			//advertising.setApplication(dispostion.getParameters().get("appId"));
+			advertising.setModification(Calendar.getInstance().getTime());
+		} catch (Exception e) {
+			e.printStackTrace();
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+		}
+		return Response.status(Response.Status.OK).entity("Advertising has been persisted").build();
+    }
+	
     /**
      * @param advertising: The Advertising thats gonna to be updated.
      * @uri http://localhost:8080/server/rest/advertising/

@@ -71,13 +71,19 @@ body {
 
 	<div class="tab-content">
 		<div class="tab-pane active" id="home">
-			<div style="margin-left: 20%;margin-right: 20%;">
-				<div class="form-login">
+			<div>
+				<form id="newAdvertising" enctype="multipart/form-data" action="http://localhost:8080/server/rest/advertising/add/" method="POST">
 					<h2 class="form-login-heading">Agregar nueva publicidad</h2>
 					<input id="description" type="text" class="input-block-level" placeholder="Descripcion">
+					<select id="deviceId">
+						<option value="android" >Android</option>
+						<option value="ios" >Ios</option>
+						<option value="all" >Ambos</option>
+					</select>
+					<input id="appId" placeholder="Identificador de la aplicacion" type="text">
 					<input id="imageFile" type="file"> 
 					<button id="imageSubmit" class="btn btn-large btn-primary" type="button">Agregar</button>
-				</div>
+				</form>
 			</div>
 		
 			<div style="margin-left: 20%;margin-right: 20%;">

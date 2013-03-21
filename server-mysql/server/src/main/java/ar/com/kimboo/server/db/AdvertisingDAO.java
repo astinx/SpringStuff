@@ -42,4 +42,14 @@ public class AdvertisingDAO {
                 .createQuery("From Advertising u where (u.id = '" + AdvertisingId + "')").uniqueResult();
     }
 
+	public List<Advertising> getAllForDevice(String deviceId) {
+		List<Advertising> results = (List<Advertising>) sessionFactory.getCurrentSession().createQuery("from Advertising a where (a.device = '"+deviceId+"')").list();
+        return results;
+	}
+
+	public List<Advertising> getAllForDeviceAndApp(String deviceId, String appId) {
+		List<Advertising> results = (List<Advertising>) sessionFactory.getCurrentSession().createQuery("from Advertising a where (a.device = '"+deviceId+"' and a.app = '"+appId+"')").list();
+        return results;
+	}
+
 }
