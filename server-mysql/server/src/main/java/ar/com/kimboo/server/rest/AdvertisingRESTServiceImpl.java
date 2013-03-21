@@ -1,14 +1,20 @@
 
 package ar.com.kimboo.server.rest;
 
+import java.io.InputStream;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -16,11 +22,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import ar.com.kimboo.model.Advertising;
 import ar.com.kimboo.server.services.AdvertisingServiceImpl;
+
+import com.sun.jersey.core.header.FormDataContentDisposition;
 
 @Component
 @Path("/advertising")
@@ -33,8 +42,26 @@ public class AdvertisingRESTServiceImpl {
      * @return json.
      * @uri http://localhost:8080/server/rest/advertising/
      */
-	@GET @Path("/") @Produces(MediaType.APPLICATION_JSON)
-    public @ResponseBody List<Advertising> getAllAdvertisings() {
+	@GET @Path("/{idApp}") @Produces(MediaType.APPLICATION_JSON)
+    public @ResponseBody List<Advertising> getAllAdvertisings(@PathVariable("idApp") String idApp) {
+        return advertisingService.getAll();
+    }
+	
+	/**
+     * @return json.
+     * @uri http://localhost:8080/server/rest/android/advertising/
+     */
+	@GET @Path("/android/{idApp}") @Produces(MediaType.APPLICATION_JSON)
+    public @ResponseBody List<Advertising> getAdvertisingForAndroid(@PathVariable("idApp") String idApp) {
+        return advertisingService.getAll();
+    }
+	
+	/**
+     * @return json.
+     * @uri http://localhost:8080/server/rest/ios/advertising/
+     */
+	@GET @Path("/ios/{idApp}") @Produces(MediaType.APPLICATION_JSON)
+    public @ResponseBody List<Advertising> getAdvertisingForIos(@PathVariable("idApp") String idApp) {
         return advertisingService.getAll();
     }
 	
@@ -54,6 +81,28 @@ public class AdvertisingRESTServiceImpl {
 		return Response.status(Response.Status.OK).entity("Advertising has been persisted").build();
     }
 
+//    /**
+//     * @param newAdvertising: The new Advertising to add to the database.
+//     * @return Response to the client.
+//     * @uri http://localhost:8080/server/rest/advertising/
+//     */
+//	@POST @Path("/add/") @Consumes("multipart/form-data") 
+//    public Response formHandler(@Context HttpServletRequest request,
+//    	      @FormParam("imageFile") FormDataContentDisposition dispostion,
+//    	      @FormParam("imageFile") InputStream imageFile) {
+//		try {
+//			Advertising advertising = new Advertising();
+//			advertising.setDescription(dispostion.getParameters().get("description"));
+//			advertising.setDevice(dispostion.getParameters().get("deviceId"));
+//			//advertising.setApplication(dispostion.getParameters().get("appId"));
+//			advertising.setModification(Calendar.getInstance().getTime());
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+//		}
+//		return Response.status(Response.Status.OK).entity("Advertising has been persisted").build();
+//    }
+	
     /**
      * @param advertising: The Advertising thats gonna to be updated.
      * @uri http://localhost:8080/server/rest/advertising/

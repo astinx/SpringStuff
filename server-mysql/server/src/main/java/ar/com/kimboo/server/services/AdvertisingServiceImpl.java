@@ -24,5 +24,13 @@ public class AdvertisingServiceImpl {
 	public List<Advertising> getAll() {
 		return advertisingDAO.getAll();
 	}
+
+	public List<Advertising> getAllForDevice(String deviceId) {
+		return advertisingDAO.getAllForDevice(deviceId);
+	}
+
+	public List<Advertising> getAllForDeviceAndApp(String deviceId, String appId) {
+		return advertisingDAO.getAllForDeviceAndApp(deviceId,appId);
+	}
     
 }
