@@ -29,12 +29,19 @@ public class AdvertisingServiceImpl {
 		return advertisingDAO.getAll();
 	}
 
+	
 	public List<Advertising> getAllForDevice(String deviceId) {
 		return advertisingDAO.getAllForDevice(deviceId);
 	}
 
 	public List<Advertising> getAllForDeviceAndApp(String deviceId, String appId) {
 		return advertisingDAO.getAllForDeviceAndApp(deviceId,appId);
+	}
+	
+
+	public List<Advertising> getAllForDeviceAndAppAndTag(String deviceId,
+			String idApp, String tagId) {
+		return advertisingDAO.getAllForDeviceAndAppAndTag(deviceId,idApp,tagId);
 	}
 	
 	/**

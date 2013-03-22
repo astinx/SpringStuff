@@ -29,93 +29,88 @@ public class Advertising implements Serializable {
 	private Date lastModification;
 	private String description;
 	private String device;
+	private String value;
 	private String path;
 	private String tag;
 	
 	public Advertising(Integer id, String appId, Date lastModification,
-			String description, String device, String path, String tag) {
+			String description, String device, String value, String path,
+			String tag) {
 		super();
 		this.id = id;
 		this.appId = appId;
 		this.lastModification = lastModification;
 		this.description = description;
 		this.device = device;
+		this.value = value;
 		this.path = path;
 		this.tag = tag;
 	}
 	
 	public Advertising() {}
 
-
 	public Integer getId() {
 		return id;
 	}
-
 
 	public void setId(Integer id) {
 		this.id = id;
 	}
 
-
 	public String getAppId() {
 		return appId;
 	}
-
 
 	public void setAppId(String appId) {
 		this.appId = appId;
 	}
 
-
 	public Date getLastModification() {
 		return lastModification;
 	}
-
 
 	public void setLastModification(Date lastModification) {
 		this.lastModification = lastModification;
 	}
 
-
 	public String getDescription() {
 		return description;
 	}
-
 
 	public void setDescription(String description) {
 		this.description = description;
 	}
 
-
 	public String getDevice() {
 		return device;
 	}
-
 
 	public void setDevice(String device) {
 		this.device = device;
 	}
 
+	public String getValue() {
+		return value;
+	}
+
+	public void setValue(String value) {
+		this.value = value;
+	}
 
 	public String getPath() {
 		return path;
 	}
 
-
 	public void setPath(String path) {
 		this.path = path;
 	}
-
 
 	public String getTag() {
 		return tag;
 	}
 
-
 	public void setTag(String tag) {
 		this.tag = tag;
 	}
-	
-
 	
 }

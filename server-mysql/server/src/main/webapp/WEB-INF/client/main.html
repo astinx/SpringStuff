@@ -62,7 +62,6 @@ body {
 					<ul class="nav">
 						<li class="active"><a href="#home" data-toggle="tab" ><i class="icon-home icon-black"></i> Inicio</a></li>
 						<li><a data-target="#about" data-toggle="tab"><i class="icon-question-sign icon-black"></i> Acerca</a></li>
-						<li><a data-target="#signin" data-toggle="tab"><i class="icon-user icon-black"></i> Registrarse</a></li>
 					</ul>
 				</div>
 			</div>
@@ -78,8 +77,8 @@ body {
 					<label class="checkbox"> 
 						<input id="checkAll" type="checkbox" value="all">Quiero que esta publicidad este disponible para todas las aplicaci&oacute;nes
 					</label>
-					
-					<input type="text" name="advertisingTag" id="advertisingTag" placeholder='Tag para esta publicacion, ej: "Samsung Galaxy Mediano"' class="input-block-level">
+					<input type="text" name="advertisingHref" id="advertisingHref" placeholder='Href, url del marketplace' class="input-block-level">
+					<input type="text" name="advertisingTag" id="advertisingTag" placeholder='Tag para esta publicacion, ej: "samsung-400x500dpi"' class="input-block-level">
 					<input name="description" id="description" type="text" class="input-block-level" placeholder="Descripcion">
 					<select name="deviceId" id="deviceId" class="input-block-level">
 						<option value="android" >Android</option>
@@ -98,7 +97,8 @@ body {
 				            <th>Descripcion</th>
 				            <th>Aplicacion</th>
 				            <th>Tag</th>
-				            <th>Device</th>
+				            <th>Dispositivo</th>
+				            <th>Market Href</th>
 				            <th class="ui_helper_right">Acciones</th>
 				        </tr>
 				    </thead>
@@ -110,19 +110,14 @@ body {
 		</div>
 		
 		<div class="tab-pane" id="about">
-			asdasd
-		</div>
-		
-		<div class="tab-pane" id="signin">
-			<div class="form-signin">
-				<h2 class="form-signin-heading">Registrarse</h2>
-				<input id="emailSignin" type="email" class="input-block-level" placeholder="Email">
-				<input id="passwordSignin" type="password" class="input-block-level" placeholder="Contrseña">
-				<button id="signinSubmit" class="btn btn-large btn-primary" type="submit">Registrarme!</button>
+			<div class="form-login">
+				<p>Para obtener el json de la publicidad desde el cliente se debe respetar la siguiente convencion en las url´s:</p>
+				<p>Si se hace un request por GET a la URL http://23.21.71.6:8080/server/rest/advertising/ se obtendran todas las publicidades del sistema </p>
+				<p>Si se hace un request por GET a la URL http://23.21.71.6:8080/server/rest/advertising/(android|ios) se obtendran todas las publicidades del sistema para android o ios </p>
+				<p>Si se hace un request por GET a la URL http://23.21.71.6:8080/server/rest/advertising/(android|ios)/(appId)/(tagId)/ se obtendran todas las publicidades </p>
 			</div>
 		</div>
 		
-		 
 	</div>
 	<script src="../resources/js/lib/jquery/jquery.js"></script>
 	<script src="../resources/js/lib/colorbox/jquery.colorbox-min.js"></script>

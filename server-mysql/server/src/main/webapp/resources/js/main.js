@@ -34,11 +34,28 @@ function findAdvertisingById(id) {
 
 function previewAdvertising (id) {
 	advertising = findAdvertisingById(id);
-	$.colorbox({html:'<img src="'+advertising.path+'">'});
+	$.colorbox({html:'<img src="'+advertising.path+'">',width:"80%", height:"80%", close:"Cerrar"});
+}
+
+function actuallyErase(id) {
+	var advertising = findAdvertisingById(id);
+	$.ajax({
+		  	type: "DELETE",
+		  	data: JSON.stringify(advertising),
+		  	url: "http://localhost:8080/server/rest/advertising/",
+		  	dataType: "json",
+		  	contentType: "application/json; charset=utf-8",
+		    success:function(res){
+		    	dataTables.init();
+		    },
+		    error:function(res){
+		    	dataTables.init();
+		    }
+	});
 }
 
 function eraseAdvertising (id) {
-	
+	$.colorbox({html:'<h1>¿Esta seguro de que desea borrar esta publicidad</h2><input type="button" value="Si" onClick="actuallyErase('+id+')">',width:"80%", height:"80%", close:"Cerrar"});
 }
 
 dataTables = {
@@ -52,19 +69,20 @@ dataTables = {
 	                              { "mDataProp": "appId" },
 	                              { "mDataProp": "tag" },
 	                              { "mDataProp": "device" },
+	                              { "mDataProp": "value" },
 	                              { "mDataProp": "id" }
 	                            ],
                     "fnInitComplete": function (oSettings, json) {
                         advertisings = json.aaData;
                 	},
                     "aoColumnDefs": [ {
-  	        	      "aTargets": [ 4 ],
+  	        	      "aTargets": [ 5 ],
   	        	      "mData": "accion",
   	        	      "mRender": function ( data, type, row ) {
   	        	    	//This function takes care of render the actions column
   	                  	var htmlAction = '<div class="btn-group pull-right">';
-  	                  	htmlAction += '<a  class="btn btn-mini" onclick="previewAdvertising('+data+')" href="#previewModal" data-toggle="modal" title="Vista previa"><i class="icon-pencil"></i></a>';
-  	                  	htmlAction += '<a  class="btn btn-mini" onclick="eraseAdvertising('+data+')" href="#eraseModal" data-toggle="modal" title="Borrar"><i class="icon-trash"></i></a>';
+  	                  	htmlAction += '<a  class="btn btn-mini" onclick="previewAdvertising('+data+')" data-toggle="modal" title="Vista previa"><i class="icon-pencil"></i></a>';
+  	                  	htmlAction += '<a  class="btn btn-mini" onclick="eraseAdvertising('+data+')" data-toggle="modal" title="Borrar"><i class="icon-trash"></i></a>';
   	                  	htmlAction += '</div>';
   	                  	return htmlAction;
   	        	      }

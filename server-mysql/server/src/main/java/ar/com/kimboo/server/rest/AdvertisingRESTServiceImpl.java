@@ -1,6 +1,7 @@
 
 package ar.com.kimboo.server.rest;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -8,10 +9,12 @@ import java.util.List;
 import java.util.Properties;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -40,32 +43,68 @@ public class AdvertisingRESTServiceImpl {
 
     private static final Logger logger = LoggerFactory.getLogger(AdvertisingRESTServiceImpl.class);
 
-    /**
+	private static final String SO_RESOURCES_PATH = "C:\\Users\\Agustin\\servers\\gatotom\\apache-tomcat-6.0.36\\wtpwebapps\\server\\resources\\advertising_images\\";
+    private static final String SERVER_RESOURCES_PATH = "/server/resources/advertising_images/";
+	
+	/**
      * @return json.
      * @uri http://localhost:8080/server/rest/advertising/
      */
-	@GET @Path("/{idApp}") @Produces(MediaType.APPLICATION_JSON)
-    public @ResponseBody List<Advertising> getAllAdvertisings(@PathVariable("idApp") String idApp) {
-        return advertisingService.getAll();
+	@DELETE @Path("/")  @Consumes(MediaType.APPLICATION_JSON)
+    public @ResponseBody Response delete(Advertising advertising) {
+		try {
+			String extension = (advertising.getPath().split("\\."))[1];
+			String fileOutputLocation = SO_RESOURCES_PATH + advertising.getAppId() + "_" + advertising.getDevice() + "_" + advertising.getTag() + "." + extension;
+			File image = new File(fileOutputLocation);
+			if (image.exists()) {
+				image.delete();
+			}
+			advertisingService.delete(advertising);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+		}
+		return Response.status(Response.Status.OK).entity("Advertising has been deleted").build();
     }
 	
 	/**
      * @return json.
-     * @uri http://localhost:8080/server/rest/android/advertising/
+     * @uri http://localhost:8080/server/rest/{deviceId}/{idApp}/{tagId}
      */
-	@GET @Path("/android/{idApp}") @Produces(MediaType.APPLICATION_JSON)
-    public @ResponseBody List<Advertising> getAdvertisingForAndroid(@PathVariable("idApp") String idApp) {
-        return advertisingService.getAll();
+	@GET @Path("/{deviceId}/{idApp}/{tagId}") @Produces(MediaType.APPLICATION_JSON)
+    public @ResponseBody List<Advertising> getAdvertisingForDeviceAndAppAndTag(@PathParam("idApp") String idApp, 
+    		@PathParam("deviceId") String deviceId,
+    		@PathParam("tagId") String tagId) {
+        return advertisingService.getAllForDeviceAndAppAndTag(deviceId, idApp, tagId);
     }
 	
 	/**
      * @return json.
-     * @uri http://localhost:8080/server/rest/ios/advertising/
+     * @uri http://localhost:8080/server/rest/{deviceId}/{idApp}/
      */
-	@GET @Path("/ios/{idApp}") @Produces(MediaType.APPLICATION_JSON)
-    public @ResponseBody List<Advertising> getAdvertisingForIos(@PathVariable("idApp") String idApp) {
-        return advertisingService.getAll();
+	@GET @Path("/{deviceId}/{idApp}/") @Produces(MediaType.APPLICATION_JSON)
+    public @ResponseBody List<Advertising> getAdvertisingForDeviceAndApp(@PathParam("deviceId") String deviceId, @PathParam("idApp") String idApp) {
+        return advertisingService.getAllForDeviceAndApp(deviceId, idApp);
     }
+	
+	/**
+     * @return json.
+     * @uri http://localhost:8080/server/rest/{deviceId}/
+     */
+	@GET @Path("/{deviceId}/") @Produces(MediaType.APPLICATION_JSON)
+    public @ResponseBody List<Advertising> getAdvertisingForDevice(@PathParam("deviceId") String deviceId) {
+		return advertisingService.getAllForDevice(deviceId);
+    }
+	
+	/**
+     * @return json.
+     * @uri http://localhost:8080/server/rest/{deviceId}/
+     */
+	@GET @Path("/") @Produces(MediaType.APPLICATION_JSON)
+    public @ResponseBody List<Advertising> getAll() {
+		return advertisingService.getAll();
+    }
+	
 	
     /**
      * @param newAdvertising: The new Advertising to add to the database.
@@ -93,6 +132,7 @@ public class AdvertisingRESTServiceImpl {
     		@FormDataParam("description") String description,
     		@FormDataParam("deviceId") String deviceId,
     		@FormDataParam("appId") String appId,
+    		@FormDataParam("advertisingHref") String advertisingHref,
     		@FormDataParam("advertisingTag") String advertisingTag,
             @FormDataParam("imageFile") InputStream imageFileStream,
             @FormDataParam("imageFile") FormDataContentDisposition fileDetail) {
@@ -100,12 +140,13 @@ public class AdvertisingRESTServiceImpl {
 			Advertising advertising = new Advertising();
 			advertising.setDescription(description);
 			advertising.setAppId(appId);
+			advertising.setValue(advertisingHref);
 			advertising.setTag(advertisingTag);
 			advertising.setLastModification(Calendar.getInstance().getTime());
 			advertising.setDevice(deviceId);
 			String extension = (fileDetail.getFileName().split("\\."))[1];
-			String fileOutputLocation = "/home/astinx/dev/" + advertising.getAppId() + "_" + advertising.getDevice() + "_" + advertising.getTag() + "." + extension;
-			advertising.setPath(fileOutputLocation);
+			String fileOutputLocation = SO_RESOURCES_PATH + advertising.getAppId() + "_" + advertising.getDevice() + "_" + advertising.getTag() + "." + extension;
+			advertising.setPath(SERVER_RESOURCES_PATH + advertising.getAppId() + "_" + advertising.getDevice() + "_" + advertising.getTag() + "." + extension);
 			advertisingService.writeToFile(imageFileStream, fileOutputLocation);
 			advertisingService.saveAdvertising(advertising);
 		} catch (Exception e) {
