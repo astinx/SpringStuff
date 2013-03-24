@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Properties;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -22,11 +21,7 @@ import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -42,34 +37,15 @@ public class AdvertisingRESTServiceImpl {
     @Autowired AdvertisingServiceImpl advertisingService;
 
     private static final Logger logger = LoggerFactory.getLogger(AdvertisingRESTServiceImpl.class);
-
-	private static final String SO_RESOURCES_PATH = "C:\\Users\\Agustin\\servers\\gatotom\\apache-tomcat-6.0.36\\wtpwebapps\\server\\resources\\advertising_images\\";
-    private static final String SERVER_RESOURCES_PATH = "/server/resources/advertising_images/";
+    /** this is the absolute path of the backup folder*/
+	private static final String OS_ADVERTISING_IMAGES_PATH = "/home/astinx/advertising_images/";
+    /** this is the url of the images */
+	private static final String PUBLIC_ADVERTISINGS_IMAGES_URL = "/server/rest/util/image/";
+	
 	
 	/**
      * @return json.
-     * @uri http://localhost:8080/server/rest/advertising/
-     */
-	@DELETE @Path("/")  @Consumes(MediaType.APPLICATION_JSON)
-    public @ResponseBody Response delete(Advertising advertising) {
-		try {
-			String extension = (advertising.getPath().split("\\."))[1];
-			String fileOutputLocation = SO_RESOURCES_PATH + advertising.getAppId() + "_" + advertising.getDevice() + "_" + advertising.getTag() + "." + extension;
-			File image = new File(fileOutputLocation);
-			if (image.exists()) {
-				image.delete();
-			}
-			advertisingService.delete(advertising);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-		}
-		return Response.status(Response.Status.OK).entity("Advertising has been deleted").build();
-    }
-	
-	/**
-     * @return json.
-     * @uri http://localhost:8080/server/rest/{deviceId}/{idApp}/{tagId}
+     * @uri http://localhost:8080/server/rest/advertising/{deviceId}/{idApp}/{tagId}
      */
 	@GET @Path("/{deviceId}/{idApp}/{tagId}") @Produces(MediaType.APPLICATION_JSON)
     public @ResponseBody List<Advertising> getAdvertisingForDeviceAndAppAndTag(@PathParam("idApp") String idApp, 
@@ -80,7 +56,7 @@ public class AdvertisingRESTServiceImpl {
 	
 	/**
      * @return json.
-     * @uri http://localhost:8080/server/rest/{deviceId}/{idApp}/
+     * @uri http://localhost:8080/server/rest/advertising/{deviceId}/{idApp}/
      */
 	@GET @Path("/{deviceId}/{idApp}/") @Produces(MediaType.APPLICATION_JSON)
     public @ResponseBody List<Advertising> getAdvertisingForDeviceAndApp(@PathParam("deviceId") String deviceId, @PathParam("idApp") String idApp) {
@@ -89,7 +65,7 @@ public class AdvertisingRESTServiceImpl {
 	
 	/**
      * @return json.
-     * @uri http://localhost:8080/server/rest/{deviceId}/
+     * @uri http://localhost:8080/server/rest/advertising/{deviceId}/
      */
 	@GET @Path("/{deviceId}/") @Produces(MediaType.APPLICATION_JSON)
     public @ResponseBody List<Advertising> getAdvertisingForDevice(@PathParam("deviceId") String deviceId) {
@@ -98,13 +74,27 @@ public class AdvertisingRESTServiceImpl {
 	
 	/**
      * @return json.
-     * @uri http://localhost:8080/server/rest/{deviceId}/
+     * @uri http://localhost:8080/server/rest/advertising/
      */
 	@GET @Path("/") @Produces(MediaType.APPLICATION_JSON)
     public @ResponseBody List<Advertising> getAll() {
 		return advertisingService.getAll();
     }
 	
+	/**
+     * @return json.
+     * @uri http://localhost:8080/server/rest/advertising/
+     */
+	@DELETE @Path("/")  @Consumes(MediaType.APPLICATION_JSON)
+    public @ResponseBody Response delete(Advertising advertising) {
+		try {
+			advertisingService.delete(advertising);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+		}
+		return Response.status(Response.Status.OK).entity("Advertising has been deleted").build();
+    }
 	
     /**
      * @param newAdvertising: The new Advertising to add to the database.
@@ -123,9 +113,9 @@ public class AdvertisingRESTServiceImpl {
     }
 
     /**
-     * @param newAdvertising: The new Advertising to add to the database.
+     * This rest method process the form of a new advertising.
      * @return Response to the client.
-     * @uri http://localhost:8080/server/rest/advertising/
+     * @uri http://localhost:8080/server/rest/advertising/add/
      */
 	@POST @Path("/add") @Consumes(MediaType.MULTIPART_FORM_DATA) 
     public Response formHandler(
@@ -137,17 +127,18 @@ public class AdvertisingRESTServiceImpl {
             @FormDataParam("imageFile") InputStream imageFileStream,
             @FormDataParam("imageFile") FormDataContentDisposition fileDetail) {
 		try {
-			Advertising advertising = new Advertising();
-			advertising.setDescription(description);
-			advertising.setAppId(appId);
-			advertising.setValue(advertisingHref);
-			advertising.setTag(advertisingTag);
-			advertising.setLastModification(Calendar.getInstance().getTime());
-			advertising.setDevice(deviceId);
+			if (appId == null) {
+				appId = "all";
+			}
+			Advertising advertising = new Advertising(null, appId, 
+					Calendar.getInstance().getTime(), description, deviceId, advertisingHref, null, advertisingTag);
+			//We save the image in the backup and in the server
 			String extension = (fileDetail.getFileName().split("\\."))[1];
-			String fileOutputLocation = SO_RESOURCES_PATH + advertising.getAppId() + "_" + advertising.getDevice() + "_" + advertising.getTag() + "." + extension;
-			advertising.setPath(SERVER_RESOURCES_PATH + advertising.getAppId() + "_" + advertising.getDevice() + "_" + advertising.getTag() + "." + extension);
-			advertisingService.writeToFile(imageFileStream, fileOutputLocation);
+			File outputFolder = new File(OS_ADVERTISING_IMAGES_PATH);
+			if (!outputFolder.exists())
+				outputFolder.mkdirs();
+			advertising.setPath(PUBLIC_ADVERTISINGS_IMAGES_URL + advertising.getAppId() + "_" + advertising.getDevice() + "_" + advertising.getTag() + "." + extension);
+			advertisingService.writeToFile(imageFileStream, OS_ADVERTISING_IMAGES_PATH + advertising.getAppId() + "_" + advertising.getDevice() + "_" + advertising.getTag() + "." + extension);
 			advertisingService.saveAdvertising(advertising);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -155,6 +146,7 @@ public class AdvertisingRESTServiceImpl {
 		}
 		return Response.status(Response.Status.OK).entity("Advertising has been persisted").build();
     }
+	
 	
     /**
      * @param advertising: The Advertising thats gonna to be updated.

@@ -44,20 +44,20 @@ public class AdvertisingDAO {
 
     @SuppressWarnings("unchecked")
 	public List<Advertising> getAllForDevice(String deviceId) {
-		List<Advertising> results = (List<Advertising>) sessionFactory.getCurrentSession().createQuery("from Advertising a where (a.device = '"+deviceId+"')").list();
+		List<Advertising> results = (List<Advertising>) sessionFactory.getCurrentSession().createQuery("from Advertising a where (a.device = '"+deviceId+"' or a.device = 'all')").list();
         return results;
 	}
 
     @SuppressWarnings("unchecked")
 	public List<Advertising> getAllForDeviceAndApp(String deviceId, String appId) {
-		List<Advertising> results = (List<Advertising>) sessionFactory.getCurrentSession().createQuery("from Advertising a where (a.device = '"+deviceId+"' and a.appId = '"+appId+"')").list();
+		List<Advertising> results = (List<Advertising>) sessionFactory.getCurrentSession().createQuery("from Advertising a where ((a.device = '"+deviceId+"' or a.device = 'all') and  (a.appId = '"+appId+"' or a.appId = 'all' ))").list();
         return results;
 	}
 
     @SuppressWarnings("unchecked")
 	public List<Advertising> getAllForDeviceAndAppAndTag(String deviceId,
-			String idApp, String tagId) {
-		List<Advertising> results = (List<Advertising>) sessionFactory.getCurrentSession().createQuery("from Advertising a where (a.device = '"+deviceId+"' and a.appId = '"+idApp+"' and a.tag = '"+tagId+"')").list();
+			String appId, String tagId) {
+		List<Advertising> results = (List<Advertising>) sessionFactory.getCurrentSession().createQuery("from Advertising a where ((a.device = '"+deviceId+"' or a.device = 'all') and (a.appId = '"+appId+"' or a.appId = 'all' ) and a.tag = '"+tagId+"')").list();
         return results;
 	}
 

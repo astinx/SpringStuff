@@ -32,30 +32,31 @@ function findAdvertisingById(id) {
 	return null;
 }
 
-function previewAdvertising (id) {
-	advertising = findAdvertisingById(id);
-	$.colorbox({html:'<img src="'+advertising.path+'">',width:"80%", height:"80%", close:"Cerrar"});
-}
-
-function actuallyErase(id) {
-	var advertising = findAdvertisingById(id);
-	$.ajax({
-		  	type: "DELETE",
-		  	data: JSON.stringify(advertising),
-		  	url: "http://localhost:8080/server/rest/advertising/",
-		  	dataType: "json",
-		  	contentType: "application/json; charset=utf-8",
-		    success:function(res){
-		    	dataTables.init();
-		    },
-		    error:function(res){
-		    	dataTables.init();
-		    }
-	});
+function previewAdvertising(id) {
+	var adv = findAdvertisingById(id);
+	$("#inline_image").attr('src',adv.path);
+	$(".inline").colorbox({inline:true, width:"50%", height:"50%"});
+	
 }
 
 function eraseAdvertising (id) {
-	$.colorbox({html:'<h1>¿Esta seguro de que desea borrar esta publicidad</h2><input type="button" value="Si" onClick="actuallyErase('+id+')">',width:"80%", height:"80%", close:"Cerrar"});
+	var r=confirm("Â¿Esta seguro de que desea borrar esta publicidad?");
+	if (r==true) {
+		var advertising = findAdvertisingById(id);
+		$.ajax({
+			  	type: "DELETE",
+			  	data: JSON.stringify(advertising),
+			  	url: "http://localhost:8080/server/rest/advertising/",
+			  	dataType: "json",
+			  	contentType: "application/json",
+			    success:function(res){
+			    	window.location.reload();
+			    },
+			    error:function(res){
+			    	window.location.reload();
+			    }
+		});
+	}
 }
 
 dataTables = {
@@ -63,7 +64,7 @@ dataTables = {
 			if($('#lista_t').length) {
 				oTable = $('#lista_t').dataTable( {
 			        "bProcessing": true,
-			        "sAjaxSource": 'http://localhost:8080/server/rest/advertising/dt/',
+			        "sAjaxSource": getRestUri('/advertising/dt/'),
 			        "aoColumns": [
 	      				      	  { "mDataProp": "description" },
 	                              { "mDataProp": "appId" },
@@ -81,7 +82,7 @@ dataTables = {
   	        	      "mRender": function ( data, type, row ) {
   	        	    	//This function takes care of render the actions column
   	                  	var htmlAction = '<div class="btn-group pull-right">';
-  	                  	htmlAction += '<a  class="btn btn-mini" onclick="previewAdvertising('+data+')" data-toggle="modal" title="Vista previa"><i class="icon-pencil"></i></a>';
+  	                  	htmlAction += '<a  class="btn btn-mini inline" onclick="previewAdvertising('+data+')" href="#inline_content" title="Vista previa"><i class="icon-pencil"></i></a>';
   	                  	htmlAction += '<a  class="btn btn-mini" onclick="eraseAdvertising('+data+')" data-toggle="modal" title="Borrar"><i class="icon-trash"></i></a>';
   	                  	htmlAction += '</div>';
   	                  	return htmlAction;
@@ -114,5 +115,8 @@ dataTables = {
 	        	    }
 			    } );
 			}
+		},
+		restart: function() {
+			oTable.fnDraw();
 		}
 	};

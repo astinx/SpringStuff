@@ -17,8 +17,23 @@ import ar.com.kimboo.server.db.AdvertisingDAO;
 public class AdvertisingServiceImpl {
     @Autowired AdvertisingDAO advertisingDAO;
 
-	public void delete(Advertising targetAdvertising) {
-		advertisingDAO.delete(targetAdvertising);
+    /** this is the absolute path of the backup folder*/
+	private static final String OS_ADVERTISING_IMAGES_PATH = "/home/astinx/advertising_images/";
+    /** this is the url of the images */
+	private static final String PUBLIC_ADVERTISINGS_IMAGES_URL = "/server/rest/util/image/";
+	
+    private static final String SO_RESOURCES_ARZION_PATH = "C:\\Users\\Agustin\\servers\\gatotom\\apache-tomcat-6.0.36\\wtpwebapps\\server\\resources\\advertising_images\\";
+    
+	public void delete(Advertising advertising) {
+		//First we need delete the image
+		String extension = (advertising.getPath().split("\\."))[1];
+		String fileOutputLocation = OS_ADVERTISING_IMAGES_PATH + advertising.getAppId() + "_" + advertising.getDevice() + "_" + advertising.getTag() + "." + extension;
+		File image = new File(fileOutputLocation);
+		if (image.exists()) {
+			image.delete();
+		}
+		//Now we delete the model
+		advertisingDAO.delete(advertising);
 	}
 
 	public void saveAdvertising(Advertising newAdvertising) {

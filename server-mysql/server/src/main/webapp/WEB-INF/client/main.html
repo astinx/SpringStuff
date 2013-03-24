@@ -44,6 +44,7 @@ body {
 }
 </style>
 <link href="../resources/css/datatables/css/jquery.dataTables.css" rel="stylesheet">
+<link href="../resources/css/colorbox/colorbox.css" rel="stylesheet">
 <link href="../resources/js/lib/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">
 
 <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
@@ -110,20 +111,35 @@ body {
 		</div>
 		
 		<div class="tab-pane" id="about">
-			<div class="form-login">
+			<div class="form-signin ">
 				<p>Para obtener el json de la publicidad desde el cliente se debe respetar la siguiente convencion en las url´s:</p>
-				<p>Si se hace un request por GET a la URL http://23.21.71.6:8080/server/rest/advertising/ se obtendran todas las publicidades del sistema </p>
-				<p>Si se hace un request por GET a la URL http://23.21.71.6:8080/server/rest/advertising/(android|ios) se obtendran todas las publicidades del sistema para android o ios </p>
-				<p>Si se hace un request por GET a la URL http://23.21.71.6:8080/server/rest/advertising/(android|ios)/(appId)/(tagId)/ se obtendran todas las publicidades </p>
+				<p>Si se hace un request por <b>GET</b> a la URL <b>http://23.21.71.6:8080/server/rest/advertising/</b>, se obtendran todas las publicidades del sistema.</p>
+				<p>Si se hace un request por <b>GET</b> a la URL <b>http://23.21.71.6:8080/server/rest/advertising/{device}</b> donde <b>device</b> es igual a <b>android, ios o all</b>, se obtendr&aacute;n todas las publicidades del sistema para <b>android, ios o todos</b> los dispositivos, respectivamente. </p>
+				<p><i>Ej: http://23.21.71.6:8080/server/rest/advertising/android/ devolvera un json de todas las publicidades para android.</i></p>
+				<p>Si se hace un request por <b>GET</b> a la URL <b>http://23.21.71.6:8080/server/rest/advertising/{device}/{appId}/</b> donde <b>appId</b> es el identificador de la aplicaci&oacute;n se obtendran todas las publicidades para la aplicaci&oacute;n especificada y el dispositivo especificado.</p>
+				<p><i>Ej: http://23.21.71.6:8080/server/rest/advertising/ios/frametastic/ devolvera un json de todas las publicidades para la aplicacion frametastic de ios.</i></p>
+				<p>Si se hace un request por <b>GET</b> a la URL <b>http://23.21.71.6:8080/server/rest/advertising/{device}/{appId}/{tag}</b> donde <b>tag</b> es el tag o etiqueta de la publicidad, se obtendr&aacute; la publicidad con la tag especificada, de la aplicaci&oacute;n especificada, del dispositivo especificado.</p>
+				<p><i>Ej: http://23.21.71.6:8080/server/rest/advertising/android/frametastic/samsung500x800 devolvera un json de la publicidad de frametastic para android que tiene la tag samsung500x800.</i></p>
+				<p>Tengase en cuenta que la convinaci&oacute;n del identificador de la aplicaci&oacute;n y el tag de la publicidad, siempre devolveran una sola publicidad, puesto que la convinaci&oacute;n de estos dos identifica univocamente una publicidad.</p>
 			</div>
 		</div>
 		
 	</div>
+	
+	<!-- This contains the hidden content for inline calls -->
+		<div style='display:none'>
+			<div id='inline_content' style='padding:10px; background:#fff;'>
+			<img id="inline_image" alt="" src="">
+			</div>
+		</div>
+	
 	<script src="../resources/js/lib/jquery/jquery.js"></script>
 	<script src="../resources/js/lib/colorbox/jquery.colorbox-min.js"></script>
 	<script src="../resources/js/lib/mustache/mustache.js"></script>
 	<script src="../resources/js/lib/bootstrap/js/bootstrap.min.js"></script>
 	<script src="../resources/js/lib/datatables/jquery.dataTables.min.js"></script>
+	<script src="../resources/js/base.js"></script>
+	
 	<script src="../resources/js/main.js"></script>
 </body>
 </html>
