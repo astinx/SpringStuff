@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>kimboo</title>
+<meta name="description" content="Main page">
+<meta name="author" content="Agustin Tomas Larghi">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="../resources/js/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+<style>
+body {
+	padding-top: 60px;
+	/* 60px to make the container go all the way to the bottom of the topbar */
+}
+.form-login, .form-signin {
+  max-width: 300px;
+  padding: 19px 29px 29px;
+  margin: 0 auto 20px;
+  background-color: #fff;
+  border: 1px solid #e5e5e5;
+  -webkit-border-radius: 5px;
+     -moz-border-radius: 5px;
+          border-radius: 5px;
+  -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+     -moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+          box-shadow: 0 1px 2px rgba(0,0,0,.05);
+}
+
+.form-signin {
+  max-width: 600px;
+}
+
+.form-login  .form-login-heading, .form-signin  .form-signin-heading,
+.form-login .checkbox {
+  margin-bottom: 10px;
+}
+.form-login input[type="text"], 
+.form-login input[type="password"] {
+  font-size: 16px;
+  height: auto;
+  margin-bottom: 15px;
+  padding: 7px 9px;
+}
+</style>
+<link href="../resources/css/datatables/css/jquery.dataTables.css" rel="stylesheet">
+<link href="../resources/css/colorbox/colorbox.css" rel="stylesheet">
+<link href="../resources/js/lib/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">
+
+<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+<!--[if lt IE 9]>
+      <script src="../assets/js/html5shiv.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+	<div class="navbar navbar-fixed-top">
+		<div class="navbar-inner">
+			<div class="container">
+				<a class="brand">Administrador de publicidad de Arzion</a>
+				<div class="nav-collapse collapse">
+					<ul class="nav">
+						<li class="active"><a href="#home" data-toggle="tab" ><i class="icon-home icon-black"></i> Inicio</a></li>
+						<li><a data-target="#about" data-toggle="tab"><i class="icon-question-sign icon-black"></i> Acerca</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="tab-content">
+		<div class="tab-pane active" id="home">
+			<div>
+				<form class="form-signin" id="newAdvertising" enctype="multipart/form-data" action="http://localhost:8080/server/rest/advertising/add/" method="POST">
+					<h2 class="form-login-heading">Agregar nueva publicidad</h2>
+					<input type="text" name="appId" id="appId" placeholder='Id de la aplicacion, ej: "Frametastic"' class="input-block-level">
+					<label class="checkbox"> 
+						<input id="checkAll" type="checkbox" value="all">Quiero que esta publicidad este disponible para todas las aplicaci&oacute;nes
+					</label>
+					<input type="text" name="advertisingHref" id="advertisingHref" placeholder='Href, url del marketplace' class="input-block-level">
+					<input type="text" name="advertisingTag" id="advertisingTag" placeholder='Tag para esta publicacion, ej: "samsung-400x500dpi"' class="input-block-level">
+					<input name="description" id="description" type="text" class="input-block-level" placeholder="Descripcion">
+					<select name="deviceId" id="deviceId" class="input-block-level">
+						<option value="android" >Android</option>
+						<option value="ios" >Ios</option>
+						<option value="all" >Ambos</option>
+					</select>
+					<input name="imageFile" id="imageFile" type="file"> 
+					<button id="imageSubmit" class="btn btn-small btn-primary" type="submit">Agregar</button>
+				</form>
+			</div>
+		
+			<div style="margin-left: 20%;margin-right: 20%;">
+                <table id="lista_t" class="table table-striped table-condensed"  data-provides="rowlink">
+				    <thead>
+				        <tr>
+				            <th>Descripcion</th>
+				            <th>Aplicacion</th>
+				            <th>Tag</th>
+				            <th>Dispositivo</th>
+				            <th>Market Href</th>
+				            <th class="ui_helper_right">Acciones</th>
+				        </tr>
+				    </thead>
+				    <tbody id="lista_t_body">
+				    </tbody>
+				</table>
+            </div>
+			
+		</div>
+		
+		<div class="tab-pane" id="about">
+			<div class="form-signin ">
+				<p>Para obtener el json de la publicidad desde el cliente se debe respetar la siguiente convencion en las url´s:</p>
+				<p>Si se hace un request por <b>GET</b> a la URL <b>http://23.21.71.6:8080/server/rest/advertising/</b>, se obtendran todas las publicidades del sistema.</p>
+				<p>Si se hace un request por <b>GET</b> a la URL <b>http://23.21.71.6:8080/server/rest/advertising/{device}</b> donde <b>device</b> es igual a <b>android, ios o all</b>, se obtendr&aacute;n todas las publicidades del sistema para <b>android, ios o todos</b> los dispositivos, respectivamente. </p>
+				<p><i>Ej: http://23.21.71.6:8080/server/rest/advertising/android/ devolvera un json de todas las publicidades para android.</i></p>
+				<p>Si se hace un request por <b>GET</b> a la URL <b>http://23.21.71.6:8080/server/rest/advertising/{device}/{appId}/</b> donde <b>appId</b> es el identificador de la aplicaci&oacute;n se obtendran todas las publicidades para la aplicaci&oacute;n especificada y el dispositivo especificado.</p>
+				<p><i>Ej: http://23.21.71.6:8080/server/rest/advertising/ios/frametastic/ devolvera un json de todas las publicidades para la aplicacion frametastic de ios.</i></p>
+				<p>Si se hace un request por <b>GET</b> a la URL <b>http://23.21.71.6:8080/server/rest/advertising/{device}/{appId}/{tag}</b> donde <b>tag</b> es el tag o etiqueta de la publicidad, se obtendr&aacute; la publicidad con la tag especificada, de la aplicaci&oacute;n especificada, del dispositivo especificado.</p>
+				<p><i>Ej: http://23.21.71.6:8080/server/rest/advertising/android/frametastic/samsung500x800 devolvera un json de la publicidad de frametastic para android que tiene la tag samsung500x800.</i></p>
+				<p>Tengase en cuenta que la convinaci&oacute;n del identificador de la aplicaci&oacute;n y el tag de la publicidad, siempre devolveran una sola publicidad, puesto que la convinaci&oacute;n de estos dos identifica univocamente una publicidad.</p>
+			</div>
+		</div>
+		
+	</div>
+	
+	<!-- This contains the hidden content for inline calls -->
+		<div style='display:none'>
+			<div id='inline_content' style='padding:10px; background:#fff;'>
+			<img id="inline_image" alt="" src="">
+			</div>
+		</div>
+	
+	<script src="../resources/js/lib/jquery/jquery.js"></script>
+	<script src="../resources/js/lib/colorbox/jquery.colorbox-min.js"></script>
+	<script src="../resources/js/lib/mustache/mustache.js"></script>
+	<script src="../resources/js/lib/bootstrap/js/bootstrap.min.js"></script>
+	<script src="../resources/js/lib/datatables/jquery.dataTables.min.js"></script>
+	<script src="../resources/js/base.js"></script>
+	
+	<script src="../resources/js/main.js"></script>
+</body>
+</html>
